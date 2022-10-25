@@ -11,7 +11,7 @@ app.get("/", (req, res) => {
     res.send("Welcome to Our Employess Info !")
 })
 
-const employeeList = [
+let employeeList = [
     {
     id: 1,
     name: "Mike",
@@ -44,67 +44,91 @@ app.get("/employees", (req, res) => {
 //Return the list of employees for given department name
 app.get("/employees/:department",(req,res)=>
 {
-    
-    return res.status(200).json({
-        message: "Employess department  Info",
-        data: employeeList.map(i=>({id:i.id, name:i.name,employeeID:i.employeeID}))
+    const department = req.params.department;
+    const findEmployees = employeeList.find((employeeList)=>employeeList.department == department? true : false);
+
+    if(findEmployees){
+        return res.status(200).json({
+            message: "Employess department  Info",
+            data: findEmployees
+        })
+    }
+    else{
+        return res.status(404).json({
+            message: "Department Doesn't Exist",})
+    }
 
 })
-})
 
-//http://localhost:5000/employees/:employeeID (GET)
+//http://localhost:5000/employees/id/:employeeID (GET)
 // Return the employee with the employee ID
 
-app.get("/employees/:employeeID",(req,res)=>
+app.get("/employees/id/:employeeID",(req,res)=>
 {
-    
-    return res.status(200).json({
-        message: "Employess department  Info",
-        data: employeeList.map(i=>({id:i.id, name:i.name,department:i.department}))
+    const id = req.params.employeeID;
+    const findEmployeesId = employeeList.find((employeeList)=>employeeList.employeeID == id ? true : false);
+    if (findEmployeesId){
+        return res.status(200).json({
+            message: "Employess department  Info",
+            data: findEmployeesId
+        })
+    }
+    else{
+        return res.status(404).json({
+            message: "Employee Id Doesn't Exist",})
 
+    }
 })
-})
+
 
 //http://localhost:5000/employees (POST)
 // Creates the Employee
 app.post("/employees",(req,res)=>{
     const data = req.body;
-
+    if ( !postToUpdate.name ||!postToUpdate.email || !postToUpdate.employeeID || !postToUpdate.department || !postToUpdate.Salary)
+        {
+            return res.status(500).json({
+                message: "One of the parameters is missing"
+        })
+    }
+    data.id = employeeList.length+1;
     employeeList.push(data);
     return res.status(201).json({
         message: "Succesfully created the employees",
         data: employeeList
     })
 })
-// http://localhost:5000/employees/:employeeID (PUT)
+// http://localhost:5000/employees/id/:employeeID (PUT)
 //Updates the Employee for given ID
-app.put("/employees/:employeeID",(req,res)=>
-    {
-        const id = req.params.id;
-        const postToUpdate = req.body;
-        if (!postToUpdate.id || postToUpdate.name ||!postToUpdate.email || !postToUpdate.employeeID || !postToUpdate.department || !postToUpdate.Salary)
-        {
-            return res.status(500).json({
-                message: "One of the parameters is missing"
+app.put("/employees/id/:employeeID", (req, res) => {
+    const empid = req.params.employeeID;
+    const postToUpdate = req.body;
+
+    if (!postToUpdate.name || !postToUpdate.email ||!postToUpdate.employeeID||!postToUpdate.department || !postToUpdate.Salary) {
+        return res.status(500).json({
+            message: "One of the parameters is missing"
         })
     }
-    employeeList = employeeList.map((post)=>{
-        if(post.id == id){
-            post = postToUpdate;
-        }
-        return post;
-    })
+    employeeList = employeeList.map((post) => {
+            if (post.employeeID == empid)
+            {
+                post = postToUpdate;
+            }
+            console.log(post);
+            return post;
+        })
+       
     return res.status(200).json({
-        message: "Succesfully updated the employees",
-        data: employeeList})
-
+        message: "Succesfully updated the employee",
+        data: employeeList
     })
-//http://localhost:5000/employees/:employeeID (DELETE)
+})
+//http://localhost:5000/employees/id/:employeeID (DELETE)
 // Deletes the Employee for Given ID
-app.delete("employees/:employeeID",(req,res)=>{
-    const id = req.params.id;
+app.delete("/employees/id/:employeeID",(req,res)=>{
+    const id = req.params.employeeID;
     const index = employeeList.findIndex((employeeList)=>{
-        if(employeeList.id == id)
+        if(employeeList.employeeID == id)
         {
             return true;
         }
@@ -128,23 +152,13 @@ app.delete("employees/:employeeID",(req,res)=>{
 // Return the list of employees in sorted fashion of highest salaries  
 
 app.get("/employees/salaries/highest",(req,res)=>{
-    const maxSalary = employeeList.reduce(function(old,item){
-        return(old.Salary > item.Salary)? old : item
+    employeeList.sort(function(a,b){
+        return a.Salary-b.Salary;
     })
-
-    // for( var i =0; i< employeeList.length;i++)
-    // {
-    //     if ( employeeList[i].Salary > maxSalary)
-    //     {
-    //         maxSalary = employeeList[i].Salary;
-    //     }
-       
-    // }
-    // console.log("Max Salary is" + maxSalary +"of " +employeeList[i].name);
    
     return res.status(200).json({
         message: "The Highest Salary",
-        data:    maxSalary.Salary 
+        data:  employeeList  
     })
 
 })

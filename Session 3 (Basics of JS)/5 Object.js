@@ -61,3 +61,5 @@ for (let key in student) {
 
     console.log(student[key]); // Values inside those keys
 }
+
+

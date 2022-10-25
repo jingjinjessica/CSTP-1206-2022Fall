@@ -1,3 +1,4 @@
+const e = require("express");
 const express = require("express");
 const app = express();
 const PORT = 5000;
@@ -126,9 +127,11 @@ app.delete("employees/:employeeID",(req,res)=>{
 //http://localhost:5000/employees/salaries/highest (GET) —- (BONUS)
 // Return the list of employees in sorted fashion of highest salaries  
 
-app.get("/employees/highest",(req,res)=>{
-    const maxSalary = 0;
-    
+app.get("/employees/salaries/highest",(req,res)=>{
+    const maxSalary = employeeList.reduce(function(old,item){
+        return(old.Salary > item.Salary)? old : item
+    })
+
     // for( var i =0; i< employeeList.length;i++)
     // {
     //     if ( employeeList[i].Salary > maxSalary)
@@ -141,7 +144,7 @@ app.get("/employees/highest",(req,res)=>{
    
     return res.status(200).json({
         message: "The Highest Salary",
-        data:  console.log("Max Salary is" + maxSalary +"of " +employeeList[i].name)
+        data:    maxSalary.Salary 
     })
 
 })
